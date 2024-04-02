@@ -98,22 +98,35 @@ export default function App() {
       const phNumber = await NativeModules.IdentityManager.getDefaultPhoneNumber();
       console.log("phNumber: ", phNumber);
 
-      const uniqueIdentifier = await NativeModules.IdentityManager.generateIdentifier(phNumber);
-      console.log("uniqueIdentifier: ", uniqueIdentifier);
-      storeData(phNumber, uniqueIdentifier);
+      let uniqueIdentifier = retrieveData(phNumber);
 
-      return retrieveData(phNumber);
+      return uniqueIdentifier;
     } catch (error) {
-      console.log('error', error);
-      return 'Error';
+      try {
+        const phNumber = await NativeModules.IdentityManager.getDefaultPhoneNumber();
+        console.log("phNumber: ", phNumber);
+
+        const uniqueIdentifier = await NativeModules.IdentityManager.generateIdentifier(phNumber);
+        console.log("uniqueIdentifier: ", uniqueIdentifier);
+        
+        storeData(phNumber, uniqueIdentifier);
+
+        const retrievedHashAfterStoring = retrieveData(phNumber);
+        console.log("retrievedHashAfterStoring: ", retrievedHashAfterStoring);
+        
+        return retrievedHashAfterStoring;
+      } catch(error) {
+          console.log('error', error);
+          return 'Error';
+      }
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Homepage</Text>
+      <Text style={styles.title}>eSIM Wallet App</Text>
       <View style={styles.separator} />
-      <Button title="button" onPress={toggleModalVisibility} />
+      <Button title="Get Unique ID" onPress={toggleModalVisibility} />
       <Modal isVisible={isModalVisible}>
         <Modal.Container>
           <Modal.Header title="Device Data" />
